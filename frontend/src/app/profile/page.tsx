@@ -7,6 +7,7 @@ import {
   uploadResume,
   deleteResume,
   setPrimaryResume,
+  reparseResume,
   CandidateProfileData,
   ResumeData,
 } from "@/lib/api";
@@ -35,6 +36,7 @@ import {
   User,
   Eye,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -115,6 +117,18 @@ export default function ProfilePage() {
       toast.error("Failed to set primary: " + err.message);
     }
   }
+
+  async function handleReparseResume(id: number) {
+    try {
+      toast.info("Auto-extracting skills, experience, and profile details from CV...");
+      const updated = await reparseResume(id);
+      setProfile(updated);
+      toast.success("Candidate profile populated from your CV!");
+    } catch (err: any) {
+      toast.error("Failed to parse resume: " + err.message);
+    }
+  }
+
 
   function addSkill(skill: string) {
     const trimmed = skill.trim();
@@ -281,6 +295,13 @@ export default function ProfilePage() {
                             className="p-1 text-slate-400 hover:text-indigo-600 transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleReparseResume(resume.id)}
+                            title="Auto-fill profile details from this CV"
+                            className="p-1 text-purple-500 hover:text-purple-700 hover:bg-purple-50 rounded transition-colors"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteResume(resume.id)}

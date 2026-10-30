@@ -174,6 +174,17 @@ export async function setPrimaryResume(id: number): Promise<ResumeData> {
   return res.json();
 }
 
+export async function reparseResume(id: number): Promise<CandidateProfileData> {
+  const res = await fetch(`${API_BASE_URL}/resumes/${id}/parse-profile/`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to parse resume: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+
 // ----------------------------------------------------------------------------
 // Jobs & Discovery APIs
 // ----------------------------------------------------------------------------

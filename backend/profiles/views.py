@@ -132,11 +132,31 @@ class ResumeViewSet(viewsets.ModelViewSet):
         if is_primary:
             Resume.objects.filter(profile=profile).update(is_primary=False)
 
-        serializer.save(
+        resume_instance = serializer.save(
             profile=profile,
             extracted_text=extracted_text,
             is_primary=is_primary
         )
+
+        # Auto-extract and populate CandidateProfile fields
+        if extracted_text:
+            try:
+                from .services.resume_parser import parse_and_populate_profile
+                parse_and_populate_profile(profile, extracted_text)
+            except Exception as e:
+                print(f"Resume profile population warning: {e}")
+
+    @action(detail=True, methods=["post"], url_path="parse-profile")
+    def parse_profile(self, request, pk=None):
+        """
+        Manually re-parses an uploaded resume to populate the candidate profile.
+        """
+        resume = self.get_object()
+        from .services.resume_parser import parse_and_populate_profile
+        profile = parse_and_populate_profile(resume.profile, resume.extracted_text)
+        from .serializers import CandidateProfileSerializer
+        return Response(CandidateProfileSerializer(profile, context={"request": request}).data)
+
 
     @action(detail=True, methods=["post"], url_path="set-primary")
     def set_primary(self, request, pk=None):
