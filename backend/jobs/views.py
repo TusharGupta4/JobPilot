@@ -1,3 +1,5 @@
+import os
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
