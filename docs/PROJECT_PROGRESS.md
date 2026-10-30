@@ -4,7 +4,7 @@
 
 ---
 
-## Overall Status: 🟢 PHASE 0 COMPLETE — Starting Phase 1 (Profile & Resume)
+## Overall Status: 🟢 PHASE 1 COMPLETE — Ready for Phase 2 (Job Discovery & Listing)
 
 ---
 
@@ -29,12 +29,12 @@
 
 | Task | Status | Notes |
 |---|---|---|
-| Backend: CandidateProfile model | 🔲 NOT STARTED | |
-| Backend: Profile API endpoint | 🔲 NOT STARTED | |
-| Frontend: Profile page | 🔲 NOT STARTED | |
-| Backend: Resume upload model | 🔲 NOT STARTED | |
-| Frontend: Resume upload UI | 🔲 NOT STARTED | |
-| End-to-end test | 🔲 NOT STARTED | |
+| Backend: CandidateProfile model | ✅ COMPLETED | Includes personal info, skills, preferences, verified answers |
+| Backend: Profile API endpoint | ✅ COMPLETED | `/api/profile/me/` and `/api/profiles/` with DRF |
+| Frontend: Profile page | ✅ COMPLETED | `/profile` tabbed manager with readiness stats |
+| Backend: Resume upload model | ✅ COMPLETED | PyPDF automatic text extraction & primary resume flag |
+| Frontend: Resume upload UI | ✅ COMPLETED | Upload, extracted text viewer, primary selector, delete |
+| End-to-end test | ✅ COMPLETED | Verified against live PostgreSQL database |
 
 ---
 
@@ -60,4 +60,4 @@ _None yet_
 _None — all initial decisions resolved_
 
 ## Next Task
-**→ Phase 1: Profile & Resume — Backend CandidateProfile model & API**
+**→ Phase 2: Job Discovery & Listing — Backend Job model, Seed Data & ATS Ingestion**

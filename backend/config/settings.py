@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     # Third-party apps
     "rest_framework",               # Django REST Framework — for building APIs
     "corsheaders",                  # Allows frontend (port 3000) to call backend (port 8000)
+
+    # Local apps
+    "profiles",
 ]
 
 # Middleware — functions that process every request/response
