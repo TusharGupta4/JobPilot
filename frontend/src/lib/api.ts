@@ -99,6 +99,30 @@ export interface JobData {
   contact_emails: string[];
   contact_phones: string[];
   notes: string;
+  semantic_domains?: string[];
+}
+
+export interface DomainMetadata {
+  key: string;
+  label: string;
+  icon: string;
+  color: string;
+  description: string;
+  sample_tech: string[];
+  job_count: number;
+}
+
+export interface DomainStatsResponse {
+  total_jobs: number;
+  portals: {
+    all: number;
+    indeed: number;
+    wellfound: number;
+    cutshort: number;
+    ats_direct: number;
+    [key: string]: number;
+  };
+  domains: DomainMetadata[];
 }
 
 export interface DiscoveryFilters {
@@ -195,6 +219,14 @@ export async function getJobs(params?: Record<string, string>): Promise<JobData[
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Failed to fetch jobs: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function getDomainStats(): Promise<DomainStatsResponse> {
+  const res = await fetch(`${API_BASE_URL}/jobs/domain-stats/`, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch domain stats: ${res.statusText}`);
   }
   return res.json();
 }

@@ -20,6 +20,8 @@ class CompanySerializer(serializers.ModelSerializer):
 
 
 class JobSerializer(serializers.ModelSerializer):
+    semantic_domains = serializers.SerializerMethodField()
+
     class Meta:
         model = Job
         fields = [
@@ -49,7 +51,12 @@ class JobSerializer(serializers.ModelSerializer):
             "contact_emails",
             "contact_phones",
             "notes",
+            "semantic_domains",
         ]
+
+    def get_semantic_domains(self, obj):
+        from .services.semantic_domain_matcher import classify_job_domains
+        return classify_job_domains(obj.title, obj.description, obj.required_skills)
 
 
 class DiscoveryFilterSerializer(serializers.Serializer):

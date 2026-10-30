@@ -43,6 +43,13 @@ import {
   Copy,
   Terminal,
   ShieldCheck,
+  Brain,
+  Layers,
+  Server,
+  Layout,
+  BarChart3,
+  Activity,
+  Cloud,
 } from "lucide-react";
 
 export default function JobsPage() {
@@ -67,6 +74,8 @@ export default function JobsPage() {
   const [limit, setLimit] = useState(30);
 
   // In-Dashboard Tab Filters
+  const [portalFilter, setPortalFilter] = useState<string>("all");
+  const [domainFilter, setDomainFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
@@ -202,6 +211,8 @@ export default function JobsPage() {
   }
 
   const filteredJobs = jobs.filter((job) => {
+    if (portalFilter !== "all" && job.portal_source !== portalFilter) return false;
+    if (domainFilter !== "all" && !(job.semantic_domains || []).includes(domainFilter)) return false;
     if (priorityFilter !== "ALL" && job.priority_rank !== priorityFilter) return false;
     if (statusFilter !== "ALL" && job.application_status !== statusFilter) return false;
     if (searchQuery) {
@@ -372,6 +383,99 @@ export default function JobsPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* 1. SEPARATE PORTAL FILTER TABS */}
+      <div className="p-1.5 bg-slate-100/90 rounded-2xl flex flex-wrap gap-1.5 border border-slate-200">
+        {[
+          { key: "all", label: "All Portals", count: jobs.length },
+          { key: "indeed", label: "Indeed India", count: jobs.filter((j) => j.portal_source === "indeed").length },
+          { key: "wellfound", label: "Wellfound", count: jobs.filter((j) => j.portal_source === "wellfound").length },
+          { key: "cutshort", label: "Cutshort", count: jobs.filter((j) => j.portal_source === "cutshort").length },
+          { key: "ats_direct", label: "Direct ATS", count: jobs.filter((j) => j.portal_source === "ats_direct").length },
+        ].map((tab) => {
+          const isSelected = portalFilter === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setPortalFilter(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                isSelected
+                  ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  isSelected ? "bg-indigo-100 text-indigo-700" : "bg-slate-200 text-slate-600"
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 2. SEMANTIC DOMAIN MATCHING SELECTOR */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <Brain className="w-4 h-4 text-purple-600" />
+            <span>Semantic Domain Matching (Contextual Relevance)</span>
+          </div>
+          {domainFilter !== "all" && (
+            <button
+              onClick={() => setDomainFilter("all")}
+              className="text-xs text-indigo-600 hover:underline font-medium"
+            >
+              Reset to All Domains
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: "all", label: "All Domains", icon: Globe },
+            { key: "aiml", label: "AI / ML & Data Science", icon: Brain },
+            { key: "fullstack", label: "Full Stack Development", icon: Layers },
+            { key: "backend", label: "Backend & APIs", icon: Server },
+            { key: "frontend", label: "Frontend & UI/UX", icon: Layout },
+            { key: "data", label: "Data Engineering", icon: BarChart3 },
+            { key: "healthcare", label: "Healthcare & Medicine", icon: Activity },
+            { key: "devops", label: "Cloud & DevOps", icon: Cloud },
+          ].map((pill) => {
+            const Icon = pill.icon;
+            const isSelected = domainFilter === pill.key;
+            const count =
+              pill.key === "all"
+                ? jobs.length
+                : jobs.filter((j) => (j.semantic_domains || []).includes(pill.key)).length;
+
+            return (
+              <button
+                key={pill.key}
+                onClick={() => setDomainFilter(pill.key)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium border transition-all ${
+                  isSelected
+                    ? "bg-purple-600 text-white border-purple-600 shadow-sm shadow-purple-600/20 font-semibold"
+                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{pill.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    isSelected ? "bg-purple-800 text-purple-200" : "bg-slate-200 text-slate-600"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Priority Rank & Status Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

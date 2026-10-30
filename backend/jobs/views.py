@@ -23,24 +23,75 @@ class JobViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         priority = self.request.query_params.get("priority")
         status_filter = self.request.query_params.get("status")
-        source = self.request.query_params.get("source")
+        portal = self.request.query_params.get("portal")
+        source = self.request.query_params.get("source") or portal
+        domain = self.request.query_params.get("domain")
         work_mode = self.request.query_params.get("work_mode")
         search = self.request.query_params.get("search")
 
-        if priority:
+        if priority and priority.upper() != "ALL":
             qs = qs.filter(priority_rank=priority.upper())
-        if status_filter:
+        if status_filter and status_filter.upper() != "ALL":
             qs = qs.filter(application_status=status_filter.upper())
-        if source:
+        if source and source.lower() not in ("all", "any"):
             qs = qs.filter(portal_source=source.lower())
-        if work_mode:
+        if work_mode and work_mode.lower() not in ("all", "any"):
             qs = qs.filter(work_mode=work_mode)
         if search:
             qs = qs.filter(
                 Q(title__icontains=search) | Q(company_name__icontains=search) | Q(description__icontains=search)
             )
 
+        # Semantic Domain Filter
+        if domain and domain.lower() not in ("all", "any"):
+            from .services.semantic_domain_matcher import is_job_in_domain
+            matching_ids = [
+                j.id for j in qs
+                if is_job_in_domain(j.title, j.description, j.required_skills, domain)
+            ]
+            qs = qs.filter(id__in=matching_ids)
+
         return qs
+
+    @action(detail=False, methods=["get"], url_path="domain-stats")
+    def domain_stats(self, request):
+        """
+        Returns rich portal counts and semantic domain distribution metrics.
+        """
+        from .services.semantic_domain_matcher import DOMAINS_METADATA, classify_job_domains
+        all_jobs = list(Job.objects.all())
+
+        # Portal counts
+        portal_counts = {
+            "all": len(all_jobs),
+            "indeed": sum(1 for j in all_jobs if j.portal_source == "indeed"),
+            "wellfound": sum(1 for j in all_jobs if j.portal_source == "wellfound"),
+            "cutshort": sum(1 for j in all_jobs if j.portal_source == "cutshort"),
+            "ats_direct": sum(1 for j in all_jobs if j.portal_source == "ats_direct"),
+        }
+
+        # Domain counts
+        domain_counts = {}
+        for d_key in DOMAINS_METADATA.keys():
+            if d_key == "all":
+                domain_counts["all"] = len(all_jobs)
+            else:
+                domain_counts[d_key] = sum(
+                    1 for j in all_jobs
+                    if d_key in classify_job_domains(j.title, j.description, j.required_skills)
+                )
+
+        domains_payload = []
+        for d_key, meta in DOMAINS_METADATA.items():
+            item = dict(meta)
+            item["job_count"] = domain_counts.get(d_key, 0)
+            domains_payload.append(item)
+
+        return Response({
+            "total_jobs": len(all_jobs),
+            "portals": portal_counts,
+            "domains": domains_payload,
+        })
 
     @action(detail=False, methods=["post"], url_path="discover")
     def discover(self, request):
