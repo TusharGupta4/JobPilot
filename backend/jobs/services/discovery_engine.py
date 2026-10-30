@@ -13,12 +13,49 @@ from profiles.models import CandidateProfile
 from .contact_enricher import enrich_company_contacts, extract_contacts_from_text
 
 
+EXCLUDED_DOMAINS = [
+    "mechanical", "cooling", "civil", "chemical", "electrical",
+    "faculty", "trainer", "teacher", "professor", "tutor", "lecturer",
+    "sales", "business development", "bda", "bde", "telecaller", "tele-caller",
+    "data annotator", "annotator", "annotation", "data entry", "transcription",
+    "counselor", "accountant", "school", "receptionist", "call center", "bpo",
+    "clerk", "hardware design", "site engineer", "executive assistant",
+]
+
+RELEVANT_DOMAINS = [
+    "developer", "engineer", "software", "programmer", "intern", "trainee",
+    "full stack", "backend", "frontend", "web", "python", "django", "react",
+    "node", "fastapi", "sde", "analyst", "data", "ai", "ml", "cloud", "devops"
+]
+
+
+def is_software_tech_job(title: str, description: str = "") -> bool:
+    """
+    Validates that a job is strictly related to software engineering, development,
+    or technical computer science roles. Rejects non-tech, sales, faculty, or mechanical jobs.
+    """
+    title_lower = title.lower()
+    desc_lower = (description or "").lower()
+
+    # Reject explicitly excluded domains in title
+    if any(bad in title_lower for bad in EXCLUDED_DOMAINS):
+        return False
+
+    # Must contain at least one tech role keyword in title
+    if any(good in title_lower for good in RELEVANT_DOMAINS):
+        return True
+
+    # If title is ambiguous, check if description has multiple tech signals
+    tech_signals = sum(1 for tech in ["python", "django", "react", "sql", "api", "software", "github", "docker"] if tech in desc_lower)
+    return tech_signals >= 3
+
+
 def calculate_match_score(candidate_skills, job_text, target_titles=None, job_title=""):
     """
-    Computes match percentage between candidate skills/titles and job content.
+    Computes honest match percentage between candidate skills/titles and job content.
     """
     if not candidate_skills:
-        return 75  # Default baseline if profile has not filled skills yet
+        return 70
 
     text_lower = (job_text + " " + job_title).lower()
     matched_skills = [
@@ -26,27 +63,31 @@ def calculate_match_score(candidate_skills, job_text, target_titles=None, job_ti
         if skill.lower() in text_lower
     ]
 
-    # Calculate skill match ratio
-    score = int((len(matched_skills) / max(len(candidate_skills), 1)) * 100)
-    
-    # Bonus points if job title matches user's target titles
+    # Calculate actual skill match ratio
+    ratio = len(matched_skills) / max(len(candidate_skills), 1)
+    score = int(ratio * 100)
+
+    # Bonus points if job title matches user's target titles or developer keywords
+    title_bonus = 0
     if target_titles:
         for t in target_titles:
             if t.lower() in job_title.lower():
-                score = min(100, score + 20)
+                title_bonus = 25
                 break
+    if not title_bonus and any(kw in job_title.lower() for kw in ["developer", "software", "full stack", "python"]):
+        title_bonus = 20
 
-    # Floor at 50% for relevant query results, max at 100%
-    return max(50, min(100, score))
+    final_score = min(100, max(25, score + title_bonus))
+    return final_score
 
 
 def determine_priority_rank(match_score: int, is_easy_apply: bool, is_within_24h: bool):
     """
     Assigns HIGH / MEDIUM / LOW priority based on match score and urgency.
     """
-    if match_score >= 75 and (is_easy_apply or is_within_24h):
+    if match_score >= 70 and (is_easy_apply or is_within_24h):
         return "HIGH"
-    elif match_score >= 60:
+    elif match_score >= 50:
         return "MEDIUM"
     return "LOW"
 
@@ -111,6 +152,10 @@ def run_multi_portal_discovery(
     cutoff_time = timezone.now() - timedelta(days=days)
 
     for item in discovered_jobs:
+        # 1. Filter out non-software / non-tech roles (mechanical, sales, faculty, data entry)
+        if not is_software_tech_job(item.get("title", ""), item.get("description", "")):
+            continue
+
         # Avoid duplicate URLs
         existing = Job.objects.filter(original_url=item["original_url"]).first()
         if existing:
@@ -123,6 +168,10 @@ def run_multi_portal_discovery(
             target_titles=target_titles,
             job_title=item.get("title", "")
         )
+
+        # Reject jobs with poor relevance
+        if match_score < 35:
+            continue
 
         is_easy = item.get("is_easy_apply", False)
         is_fresh = bool(item.get("posted_at") and item["posted_at"] >= cutoff_time)
@@ -170,7 +219,10 @@ def search_indeed(keywords, location, days=1, experience="Fresher", limit=15):
     using Playwright headless to bypass Cloudflare anti-bot checks.
     """
     results = []
-    encoded_q = urllib.parse.quote(f"{keywords} {experience}")
+    clean_kw = keywords
+    if not any(role in keywords.lower() for role in ["developer", "engineer", "full stack", "intern", "trainee", "software"]):
+        clean_kw = f"{keywords} Developer"
+    encoded_q = urllib.parse.quote(f"{clean_kw} {experience}")
     encoded_l = urllib.parse.quote(location)
     url = f"https://in.indeed.com/jobs?q={encoded_q}&l={encoded_l}&fromage={days}"
 
@@ -196,7 +248,7 @@ def search_indeed(keywords, location, days=1, experience="Fresher", limit=15):
                     continue
 
                 title = lines[0]
-                if len(title) < 3:
+                if len(title) < 3 or not is_software_tech_job(title, text):
                     continue
 
                 comp = "Tech Company"
