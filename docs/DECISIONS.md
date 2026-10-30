@@ -46,3 +46,13 @@
 **Date:** 29 Oct 2026  
 **Decision:** Single repository with `frontend/`, `backend/`, and `docs/` directories.  
 **Rationale:** Everything in one place, but cleanly separated. Simple for a solo developer.
+
+## Decision 009 — Multi-Portal Discovery, Stealth Auto-Apply with Fallback & Contact Enrichment
+**Date:** 30 Oct 2026  
+**Context:** Solo fresher job-search requiring broad market coverage (startups, internships, entry-level) across major platforms (Indeed, Wellfound, Naukri, LinkedIn, Cutshort) without being restricted to a fixed company list, with maximum automation and minimum manual effort.  
+**Decision:**
+1. **Query-Based Multi-Portal Discovery:** Dynamic filtering by posting date (last 24h, 7d), domain/industry, location (India/Remote/city), job type (internship/full-time), and experience level (fresher/entry-level) across major portals, combined with direct ATS channels.
+2. **Stealth Browser Automation (Playwright):** Use persistent user browser sessions (reusing existing login cookies) with randomized delays, human-like scrolling, and stealth headers to avoid bot detection.
+3. **Auto-Apply Priority with Intelligent Fallback:** Automatically submit standardized forms (Indeed Easy Apply, Wellfound) using candidate profile and verified answers. If blocked by CAPTCHA or external portal, never discard the job; instead, rank it by resume match score and priority for 1-click assisted manual submission.
+4. **Company Contact Information Enrichment:** Automatically discover official company website, HR/recruitment emails, and contact phone numbers from job postings and company public web pages.
+

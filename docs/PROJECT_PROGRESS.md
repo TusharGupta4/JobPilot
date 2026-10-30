@@ -38,18 +38,38 @@
 
 ---
 
-## Phase 2: Job Discovery & Listing (Feature 2)
+## Phase 2: Multi-Portal Job Discovery, Advanced Filters & Contact Enrichment
 
 | Task | Status | Notes |
 |---|---|---|
-| Backend: Job model + seed data | 🔲 NOT STARTED | |
-| Backend: Jobs API | 🔲 NOT STARTED | |
-| Frontend: Jobs dashboard | 🔲 NOT STARTED | |
-| Frontend: Job detail view | 🔲 NOT STARTED | |
+| Backend: Job & Company models | 🔲 NOT STARTED | Contact fields (email, phone, site), portal source, priority rank, status |
+| Backend: Advanced Filter Query Engine | 🔲 NOT STARTED | Filter by 24h/7d, domain/industry, location, fresher/intern, limit |
+| Backend: Multi-Portal Discovery Crawlers | 🔲 NOT STARTED | Indeed India, Wellfound, Naukri, LinkedIn + ATS channels |
+| Backend: Company Contact Discovery Crawler | 🔲 NOT STARTED | Auto-discover official email, HR email, phone from company sites |
+| Frontend: Advanced Search & Filter Panel | 🔲 NOT STARTED | 24h toggle, domain, location, exp level, job count picker |
+| Frontend: Centralised Jobs Dashboard | 🔲 NOT STARTED | Priority ranking, match %, contact info badges, application status |
+| Frontend: Job Detail Drawer & Contact Viewer | 🔲 NOT STARTED | Full description, contacts, direct apply link |
 
 ---
 
-## Phase 3–8: (Future phases will be added as we progress)
+## Phase 3: Resume Matching & Priority Ranking
+
+| Task | Status | Notes |
+|---|---|---|
+| Backend: AI Resume Matcher (Gemini) | 🔲 NOT STARTED | Match percentage, skill overlap, gap analysis |
+| Backend: Priority Ranker | 🔲 NOT STARTED | High/Medium/Low priority based on match score + freshness |
+| Frontend: Ranking & Tier Visualizer | 🔲 NOT STARTED | Visual badges, order by priority |
+
+---
+
+## Phase 4: Stealth Browser Automation & Auto-Apply with Fallback
+
+| Task | Status | Notes |
+|---|---|---|
+| Backend: Playwright Stealth Setup | 🔲 NOT STARTED | Persistent user profile, human-like scrolling & delays |
+| Backend: Auto-Apply Runner (Indeed/Wellfound) | 🔲 NOT STARTED | Auto-fill contact, resume, verified answers & submit |
+| Backend: Fallback & Handoff Engine | 🔲 NOT STARTED | Preserve blocked jobs in dashboard for 1-click manual apply |
+| Frontend: Application Tracker | 🔲 NOT STARTED | Track Auto-Applied vs Manual Apply Required |
 
 ---
 
@@ -57,7 +77,7 @@
 _None yet_
 
 ## Pending Decisions
-_None — all initial decisions resolved_
+_None — all decisions aligned with user requirements (see Decision 009)_
 
 ## Next Task
-**→ Phase 2: Job Discovery & Listing — Backend Job model, Seed Data & ATS Ingestion**
+**→ Phase 2: Create Job & Company models with contact fields, priority ranks, and advanced filtering engine**

@@ -1,26 +1,24 @@
 # AI Job Search, Application & Contact Enrichment Automation
 
-## Product Plan and Implementation Blueprint — v1.1
+## Product Plan and Implementation Blueprint — v2.0
 
-**Version:** 1.1 (supersedes 1.0)
-**Date:** 29 October 2026
-**Scope:** Personal, single-user tool. Solo build, no deadline.
-**Primary goal:** A personal job-search assistant that finds every relevant opportunity (any location, any job type), ranks it against my profile, prepares truthful application materials, and tracks every outcome, with me staying in control of anything done inside my portal accounts.
+**Version:** 2.0 (supersedes 1.1)  
+**Date:** 30 October 2026  
+**Scope:** Personal, single-user tool. Solo build. Fresher & startup focus across India/Remote.  
+**Primary goal:** An autonomous job-search assistant that scans major portals (Indeed, Wellfound, Naukri, LinkedIn, Cutshort) and direct ATS boards with granular filters (24h/7d, domain, location, fresher/intern), enriches company contact info (HR emails, phones), ranks jobs by resume match and priority, auto-applies via stealth browser automation where supported, and provides a centralized 1-click fallback dashboard so no opportunity is ever lost.
 
 ---
 
-## 0. What changed from v1.0
+## 0. Version Evolution (v1.0 -> v1.1 -> v2.0)
 
-| Area | v1.0 | v1.1 |
+| Area | v1.1 | **v2.0 (Current Blueprint)** |
 |---|---|---|
-| Users | Multi-user product | **Personal use only.** No authentication, roles or per-user authorization for now |
-| Portal access | Adapters per portal, some automated | **Human-in-the-loop for my own accounts**: browser extension capture, email job alerts, links opened in my own logged-in browser |
-| Submission | Mode A (auto) was a headline feature | **Assisted submission is the default.** Auto-submit is a stretch goal, only where an approved route exists |
-| Filters | Many hard filters (location, work mode, etc.) | **No location or job-type restriction.** Most filters become tiers and labels |
-| Automation tooling | Celery only | **Optional n8n layer** for scheduling, email-alert ingestion and notifications. Django stays the source of truth |
-| Contacts | Phase 4 pillar | **Experiment first**, then build only if yield is good |
-| State machine | One mixed enum | **Split** into job-level status and application-level status |
-| Timeline | Phase list | No dates. Order is by dependency and value |
+| **Discovery Scope** | Fixed company seed list & ATS only | **Multi-Portal Query Engine** (Indeed, Wellfound, Naukri, LinkedIn, Cutshort + ATS). Not restricted to 50 companies; targets startups, internships, and freshers. |
+| **Search Filters** | Static soft preferences | **Dynamic Filter Panel**: Posting date (last 24h, 7d), domain/industry, location, fresher/intern, job count limit. |
+| **Submission** | Manual handoff only | **Dual Engine**: Priority 1 = Stealth Auto-Apply (Indeed Easy Apply, Wellfound) via Playwright; Priority 2 = Ranked 1-click manual fallback. |
+| **Bot Detection** | Avoided automation | **Human-Like Stealth Automation**: Persistent browser profile (reuses logged-in session), randomized delays, smooth scrolling, fingerprint masking. |
+| **Contact Info** | Gated experiment | **Automated Company Contact Enrichment**: Scrapes official company website & listing for HR/careers emails and phone numbers. |
+| **Dashboard** | Basic listing | **Centralized Priority-Ranked Command Center**: Match %, priority badges, application status (Auto-Applied vs Manual), contact cards. |
 
 ---
 
