@@ -4,7 +4,7 @@
 
 ---
 
-## Overall Status: 🟢 PHASE 1 COMPLETE — Ready for Phase 2 (Job Discovery & Listing)
+## Overall Status: 🟢 PHASE 2 COMPLETE — Moving to Phase 3 & 4 (AI Matcher & Stealth Auto-Apply)
 
 ---
 
@@ -42,13 +42,13 @@
 
 | Task | Status | Notes |
 |---|---|---|
-| Backend: Job & Company models | 🔲 NOT STARTED | Contact fields (email, phone, site), portal source, priority rank, status |
-| Backend: Advanced Filter Query Engine | 🔲 NOT STARTED | Filter by 24h/7d, domain/industry, location, fresher/intern, limit |
-| Backend: Multi-Portal Discovery Crawlers | 🔲 NOT STARTED | Indeed India, Wellfound, Naukri, LinkedIn + ATS channels |
-| Backend: Company Contact Discovery Crawler | 🔲 NOT STARTED | Auto-discover official email, HR email, phone from company sites |
-| Frontend: Advanced Search & Filter Panel | 🔲 NOT STARTED | 24h toggle, domain, location, exp level, job count picker |
-| Frontend: Centralised Jobs Dashboard | 🔲 NOT STARTED | Priority ranking, match %, contact info badges, application status |
-| Frontend: Job Detail Drawer & Contact Viewer | 🔲 NOT STARTED | Full description, contacts, direct apply link |
+| Backend: Job & Company models | ✅ COMPLETED | Contact fields (email, phone, site), portal source, priority rank, status |
+| Backend: Advanced Filter Query Engine | ✅ COMPLETED | Filter by 24h/7d, domain/industry, location, fresher/intern, limit |
+| Backend: Multi-Portal Discovery Crawlers | ✅ COMPLETED | Indeed India, Wellfound, Naukri, LinkedIn + ATS channels |
+| Backend: Company Contact Discovery Crawler | ✅ COMPLETED | Auto-discover official email, HR email, phone from company sites |
+| Frontend: Advanced Search & Filter Panel | ✅ COMPLETED | 24h toggle, domain, location, exp level, job count picker |
+| Frontend: Centralised Jobs Dashboard | ✅ COMPLETED | Priority ranking, match %, contact info badges, application status |
+| Frontend: Job Detail Drawer & Contact Viewer | ✅ COMPLETED | Full description, contacts, direct apply link |
 
 ---
 
@@ -80,4 +80,4 @@ _None yet_
 _None — all decisions aligned with user requirements (see Decision 009)_
 
 ## Next Task
-**→ Phase 2: Create Job & Company models with contact fields, priority ranks, and advanced filtering engine**
+**→ Phase 3: AI Resume Matcher (Gemini) & Phase 4 Stealth Auto-Apply Engine**

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
     # Local apps
     "profiles",
+    "jobs",
 ]
 
 # Middleware — functions that process every request/response

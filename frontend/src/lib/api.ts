@@ -66,6 +66,54 @@ export interface CandidateProfileData {
   updated_at: string;
 }
 
+export interface JobData {
+  id: number;
+  title: string;
+  company_name: string;
+  company_website: string;
+  portal_source: "indeed" | "wellfound" | "naukri" | "linkedin" | "cutshort" | "ats_direct" | "manual";
+  external_id: string;
+  original_url: string;
+  apply_url: string;
+  description: string;
+  locations: string[];
+  work_mode: string;
+  job_type: string;
+  experience_level: string;
+  required_skills: string[];
+  salary_min: number | null;
+  salary_max: number | null;
+  currency: string;
+  posted_at: string | null;
+  discovered_at: string;
+  is_easy_apply: boolean;
+  match_score: number;
+  priority_rank: "HIGH" | "MEDIUM" | "LOW";
+  application_status:
+    | "SAVED"
+    | "AUTO_APPLY_ELIGIBLE"
+    | "AUTO_APPLIED"
+    | "MANUAL_APPLY_NEEDED"
+    | "APPLIED"
+    | "REJECTED";
+  contact_emails: string[];
+  contact_phones: string[];
+  notes: string;
+}
+
+export interface DiscoveryFilters {
+  keywords?: string;
+  location?: string;
+  time_window?: "24h" | "7d" | "14d" | "all";
+  experience?: "Fresher" | "Internship" | "Entry-level" | "Any";
+  job_type?: "Full-time" | "Internship" | "Part-time" | "Contract";
+  limit?: number;
+}
+
+// ----------------------------------------------------------------------------
+// Candidate Profile & Resume APIs
+// ----------------------------------------------------------------------------
+
 export async function getProfile(): Promise<CandidateProfileData> {
   const res = await fetch(`${API_BASE_URL}/profile/me/`, {
     cache: "no-store",
@@ -122,6 +170,66 @@ export async function setPrimaryResume(id: number): Promise<ResumeData> {
   });
   if (!res.ok) {
     throw new Error(`Failed to set primary resume: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+// ----------------------------------------------------------------------------
+// Jobs & Discovery APIs
+// ----------------------------------------------------------------------------
+
+export async function getJobs(params?: Record<string, string>): Promise<JobData[]> {
+  const searchParams = new URLSearchParams(params);
+  const url = `${API_BASE_URL}/jobs/?${searchParams.toString()}`;
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch jobs: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function discoverJobs(
+  filters: DiscoveryFilters
+): Promise<{ message: string; count: number; jobs: JobData[] }> {
+  const res = await fetch(`${API_BASE_URL}/jobs/discover/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(filters),
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Discovery failed: ${errorText || res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function enrichJobContacts(
+  jobId: number
+): Promise<{ message: string; contact_emails: string[]; contact_phones: string[] }> {
+  const res = await fetch(`${API_BASE_URL}/jobs/${jobId}/enrich-contacts/`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error(`Enrichment failed: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function updateJobStatus(
+  jobId: number,
+  newStatus: string
+): Promise<JobData> {
+  const res = await fetch(`${API_BASE_URL}/jobs/${jobId}/update-status/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status: newStatus }),
+  });
+  if (!res.ok) {
+    throw new Error(`Status update failed: ${res.statusText}`);
   }
   return res.json();
 }

@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Link from "next/link";
-import { Briefcase, User, Sparkles, FileText, CheckCircle2 } from "lucide-react";
+import { Briefcase, User, Sparkles, FileText, CheckCircle2, Search } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -57,18 +57,18 @@ export default function RootLayout({
                   Dashboard
                 </Link>
                 <Link
-                  href="/profile"
+                  href="/jobs"
                   className="px-3.5 py-2 rounded-lg text-indigo-600 bg-indigo-50/80 font-semibold hover:bg-indigo-100/80 transition-colors flex items-center gap-2"
+                >
+                  <Search className="w-4 h-4" />
+                  Jobs & Discovery
+                </Link>
+                <Link
+                  href="/profile"
+                  className="px-3.5 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors flex items-center gap-2"
                 >
                   <User className="w-4 h-4" />
                   Profile & Resume
-                </Link>
-                <Link
-                  href="/applications"
-                  className="px-3.5 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors flex items-center gap-2"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  Applications
                 </Link>
               </nav>
             </div>
