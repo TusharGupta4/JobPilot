@@ -49,7 +49,7 @@ class Resume(models.Model):
         blank=True
     )
     file = models.FileField(upload_to="resumes/")
-    filename = models.CharField(max_length=255)
+    filename = models.CharField(max_length=255, blank=True, default="")
     file_size = models.PositiveIntegerField(default=0)  # in bytes
     file_type = models.CharField(max_length=100, blank=True, default="")
     extracted_text = models.TextField(blank=True, default="")

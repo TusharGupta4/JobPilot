@@ -19,7 +19,16 @@ class ResumeSerializer(serializers.ModelSerializer):
             "is_primary",
             "uploaded_at",
         ]
-        read_only_fields = ["id", "file_size", "file_type", "uploaded_at", "file_url"]
+        read_only_fields = [
+            "id",
+            "profile",
+            "filename",
+            "file_size",
+            "file_type",
+            "extracted_text",
+            "uploaded_at",
+            "file_url",
+        ]
 
     def get_file_url(self, obj):
         if obj.file:
