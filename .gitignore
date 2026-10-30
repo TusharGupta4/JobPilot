@@ -1,0 +1,62 @@
+# ============================================
+# Dependencies (downloaded libraries - HUGE folders, never commit)
+# ============================================
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+env/
+
+# ============================================
+# Build outputs (generated files, not source code)
+# ============================================
+.next/
+out/
+build/
+dist/
+*.egg-info/
+
+# ============================================
+# Environment & Secrets (NEVER commit these)
+# ============================================
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# IDE & OS files (personal editor settings)
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+.DS_Store
+
+# ============================================
+# Database files
+# ============================================
+*.sqlite3
+db.sqlite3
+
+# ============================================
+# Logs & temp files
+# ============================================
+*.log
+npm-debug.log*
+
+# ============================================
+# Media & uploads (user files, not source code)
+# ============================================
+media/
+uploads/
+
+# ============================================
+# Coverage & test reports
+# ============================================
+htmlcov/
+.coverage
+coverage/
