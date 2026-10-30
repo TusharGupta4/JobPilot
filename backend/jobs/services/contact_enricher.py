@@ -111,14 +111,6 @@ def enrich_company_contacts(website_url: str = None, description: str = None):
             except Exception:
                 continue
 
-        # If crawler didn't find plaintext emails on the pages (e.g. site uses JS contact forms),
-        # synthesize standard professional recruiter outreach mailboxes for this domain
-        if not all_emails and base_url:
-            domain_name = parsed.netloc.replace("www.", "").strip()
-            if domain_name and "." in domain_name and not any(ign in domain_name for ign in ["indeed", "wellfound", "cutshort", "naukri", "linkedin"]):
-                all_emails.add(f"careers@{domain_name}")
-                all_emails.add(f"hr@{domain_name}")
-
     return {
         "emails": list(all_emails),
         "phones": list(all_phones),

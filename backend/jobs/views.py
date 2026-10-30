@@ -147,8 +147,13 @@ class JobViewSet(viewsets.ModelViewSet):
         job.contact_phones = list(existing_phones)
         job.save(update_fields=["contact_emails", "contact_phones"])
 
+        if contacts["emails"] or contacts["phones"]:
+            msg = f"Discovered {len(contacts['emails'])} email(s) and {len(contacts['phones'])} phone(s) on official company pages."
+        else:
+            msg = "Scanned company website & description. No public email or phone published on their pages (site uses online web form)."
+
         return Response({
-            "message": "Company contacts enriched successfully.",
+            "message": msg,
             "contact_emails": job.contact_emails,
             "contact_phones": job.contact_phones,
         })
