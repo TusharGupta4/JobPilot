@@ -52,33 +52,38 @@ def is_software_tech_job(title: str, description: str = "") -> bool:
 
 def calculate_match_score(candidate_skills, job_text, target_titles=None, job_title=""):
     """
-    Computes honest match percentage between candidate skills/titles and job content.
+    Computes realistic match percentage between candidate skills/titles and job content.
     """
     if not candidate_skills:
         return 70
 
-    text_lower = (job_text + " " + job_title).lower()
+    combined_text = (job_text + " " + job_title).lower()
+    title_lower = job_title.lower()
+
+    # Base score
+    base_score = 45
+
+    # Core skill alignment (Python, Django, React, FastAPI, Full Stack)
+    core_skills = ["python", "django", "react", "fastapi", "full stack", "backend", "frontend", "web", "sql"]
+    core_hits = sum(1 for c in core_skills if c in title_lower or c in combined_text)
+    base_score += min(30, core_hits * 10)
+
+    # Title relevance bonus
+    if any(term in title_lower for term in ["developer", "software engineer", "sde", "full stack", "trainee"]):
+        base_score += 15
+
+    # Specific candidate target titles
+    if target_titles and any(t.lower() in title_lower for t in target_titles):
+        base_score += 10
+
+    # Additional matched candidate skills
     matched_skills = [
         skill for skill in candidate_skills
-        if skill.lower() in text_lower
+        if skill.lower() in combined_text
     ]
+    base_score += min(15, len(matched_skills) * 3)
 
-    # Calculate actual skill match ratio
-    ratio = len(matched_skills) / max(len(candidate_skills), 1)
-    score = int(ratio * 100)
-
-    # Bonus points if job title matches user's target titles or developer keywords
-    title_bonus = 0
-    if target_titles:
-        for t in target_titles:
-            if t.lower() in job_title.lower():
-                title_bonus = 25
-                break
-    if not title_bonus and any(kw in job_title.lower() for kw in ["developer", "software", "full stack", "python"]):
-        title_bonus = 20
-
-    final_score = min(100, max(25, score + title_bonus))
-    return final_score
+    return min(100, max(30, base_score))
 
 
 def determine_priority_rank(match_score: int, is_easy_apply: bool, is_within_24h: bool):
