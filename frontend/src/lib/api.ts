@@ -233,3 +233,41 @@ export async function updateJobStatus(
   }
   return res.json();
 }
+
+export interface AiMatchResult {
+  source: string;
+  match_score: number;
+  priority_rank: string;
+  match_summary: string;
+  matched_skills: string[];
+  missing_skills: string[];
+  tailored_pitch: string;
+  note?: string;
+}
+
+export interface AutoApplyResult {
+  success: boolean;
+  status: string;
+  message: string;
+}
+
+export async function triggerAiMatch(jobId: number): Promise<AiMatchResult> {
+  const res = await fetch(`${API_BASE_URL}/jobs/${jobId}/ai-match/`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error(`AI analysis failed: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function triggerAutoApply(jobId: number): Promise<AutoApplyResult> {
+  const res = await fetch(`${API_BASE_URL}/jobs/${jobId}/auto-apply/`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error(`Auto-apply request failed: ${res.statusText}`);
+  }
+  return res.json();
+}
+

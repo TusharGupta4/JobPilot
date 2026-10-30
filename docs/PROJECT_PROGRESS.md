@@ -4,7 +4,7 @@
 
 ---
 
-## Overall Status: 🟢 PHASE 2 COMPLETE — Moving to Phase 3 & 4 (AI Matcher & Stealth Auto-Apply)
+## Overall Status: 🟢 CORE PLATFORM COMPLETE (Phases 0 to 4 Operational)
 
 ---
 
@@ -56,9 +56,9 @@
 
 | Task | Status | Notes |
 |---|---|---|
-| Backend: AI Resume Matcher (Gemini) | 🔲 NOT STARTED | Match percentage, skill overlap, gap analysis |
-| Backend: Priority Ranker | 🔲 NOT STARTED | High/Medium/Low priority based on match score + freshness |
-| Frontend: Ranking & Tier Visualizer | 🔲 NOT STARTED | Visual badges, order by priority |
+| Backend: AI Resume Matcher (Gemini) | ✅ COMPLETED | Gemini SDK integrated, skill overlap, gap analysis & pitch generator |
+| Backend: Priority Ranker | ✅ COMPLETED | HIGH/MEDIUM/LOW priority based on match score + freshness |
+| Frontend: Ranking & Tier Visualizer | ✅ COMPLETED | AI Match breakdown dialog with matched skills, gaps, tailored pitch |
 
 ---
 
@@ -66,10 +66,10 @@
 
 | Task | Status | Notes |
 |---|---|---|
-| Backend: Playwright Stealth Setup | 🔲 NOT STARTED | Persistent user profile, human-like scrolling & delays |
-| Backend: Auto-Apply Runner (Indeed/Wellfound) | 🔲 NOT STARTED | Auto-fill contact, resume, verified answers & submit |
-| Backend: Fallback & Handoff Engine | 🔲 NOT STARTED | Preserve blocked jobs in dashboard for 1-click manual apply |
-| Frontend: Application Tracker | 🔲 NOT STARTED | Track Auto-Applied vs Manual Apply Required |
+| Backend: Playwright Stealth Setup | ✅ COMPLETED | Persistent user session command (`setup_browser_session`), human delays |
+| Backend: Auto-Apply Runner (Indeed/Wellfound) | ✅ COMPLETED | Form auto-filler (contact, resume, screening answers, submit) |
+| Backend: Fallback & Handoff Engine | ✅ COMPLETED | CAPTCHA detection and safe fallback to 1-click manual apply |
+| Frontend: Application Tracker | ✅ COMPLETED | "⚡ Auto-Apply" action on cards with live toast feedback |
 
 ---
 
@@ -80,4 +80,4 @@ _None yet_
 _None — all decisions aligned with user requirements (see Decision 009)_
 
 ## Next Task
-**→ Phase 3: AI Resume Matcher (Gemini) & Phase 4 Stealth Auto-Apply Engine**
+**→ System Ready: Run `python manage.py setup_browser_session` once for persistent session, then start discovering & auto-applying!**

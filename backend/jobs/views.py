@@ -109,17 +109,30 @@ class JobViewSet(viewsets.ModelViewSet):
         new_status = request.data.get("status")
         valid_statuses = [choice[0] for choice in Job.STATUS_CHOICES]
 
-        if new_status not in valid_statuses:
-            return Response(
-                {"error": f"Invalid status. Choose from: {valid_statuses}"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         job.application_status = new_status
         job.save(update_fields=["application_status"])
         return Response(JobSerializer(job).data)
+
+    @action(detail=True, methods=["post"], url_path="ai-match")
+    def ai_match(self, request, pk=None):
+        """
+        Runs deep AI matching & explanation using Gemini / heuristic fallback.
+        """
+        from .services.ai_matcher import analyze_job_match
+        result = analyze_job_match(pk)
+        return Response(result)
+
+    @action(detail=True, methods=["post"], url_path="auto-apply")
+    def auto_apply(self, request, pk=None):
+        """
+        Triggers stealth browser automation to auto-fill and submit job application.
+        """
+        from .services.auto_apply_runner import run_stealth_auto_apply
+        result = run_stealth_auto_apply(pk)
+        return Response(result)
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+

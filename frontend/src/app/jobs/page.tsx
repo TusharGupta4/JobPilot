@@ -6,8 +6,11 @@ import {
   discoverJobs,
   enrichJobContacts,
   updateJobStatus,
+  triggerAiMatch,
+  triggerAutoApply,
   JobData,
   DiscoveryFilters,
+  AiMatchResult,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +39,10 @@ import {
   AlertCircle,
   Send,
   Loader2,
+  Bot,
+  Copy,
+  Terminal,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function JobsPage() {
@@ -43,7 +50,12 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [discovering, setDiscovering] = useState(false);
   const [enrichingId, setEnrichingId] = useState<number | null>(null);
+  const [applyingId, setApplyingId] = useState<number | null>(null);
+  const [analyzingId, setAnalyzingId] = useState<number | null>(null);
+
   const [selectedJob, setSelectedJob] = useState<JobData | null>(null);
+  const [aiMatchData, setAiMatchData] = useState<AiMatchResult | null>(null);
+  const [aiMatchJob, setAiMatchJob] = useState<JobData | null>(null);
 
   // Search & Filter Panel State
   const [filtersOpen, setFiltersOpen] = useState(true);
@@ -80,7 +92,7 @@ export default function JobsPage() {
     try {
       setDiscovering(true);
       toast.info(`Scanning portals for "${keywords}" in ${location} (${timeWindow === "24h" ? "Past 24 Hours" : timeWindow})...`);
-      
+
       const res = await discoverJobs({
         keywords,
         location,
@@ -104,7 +116,7 @@ export default function JobsPage() {
       setEnrichingId(job.id);
       toast.info(`Crawling company website for ${job.company_name} contact info...`);
       const res = await enrichJobContacts(job.id);
-      
+
       setJobs((prev) =>
         prev.map((j) =>
           j.id === job.id
@@ -133,6 +145,49 @@ export default function JobsPage() {
     }
   }
 
+  async function handleAutoApply(job: JobData) {
+    try {
+      setApplyingId(job.id);
+      toast.info(`Launching stealth browser worker for ${job.company_name}...`);
+      const res = await triggerAutoApply(job.id);
+
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.warning(res.message);
+      }
+
+      await loadJobs();
+    } catch (err: any) {
+      toast.error("Auto-apply error: " + err.message);
+    } finally {
+      setApplyingId(null);
+    }
+  }
+
+  async function handleAiMatch(job: JobData) {
+    try {
+      setAnalyzingId(job.id);
+      setAiMatchJob(job);
+      toast.info(`Analyzing match with Gemini AI for ${job.title}...`);
+      const res = await triggerAiMatch(job.id);
+      setAiMatchData(res);
+
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === job.id
+            ? { ...j, match_score: res.match_score, priority_rank: res.priority_rank as any }
+            : j
+        )
+      );
+      toast.success("AI match analysis completed!");
+    } catch (err: any) {
+      toast.error("AI analysis failed: " + err.message);
+    } finally {
+      setAnalyzingId(null);
+    }
+  }
+
   async function handleStatusChange(jobId: number, newStatus: string) {
     try {
       const updated = await updateJobStatus(jobId, newStatus);
@@ -146,7 +201,6 @@ export default function JobsPage() {
     }
   }
 
-  // Filter and rank displayed jobs
   const filteredJobs = jobs.filter((job) => {
     if (priorityFilter !== "ALL" && job.priority_rank !== priorityFilter) return false;
     if (statusFilter !== "ALL" && job.application_status !== statusFilter) return false;
@@ -162,19 +216,19 @@ export default function JobsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Page Title & Status Banner */}
+      {/* Top Banner Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Multi-Portal Job Discovery
+              Multi-Portal Job Discovery & Auto-Apply
             </h1>
             <Badge className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
               v2.0 Autonomous Engine
             </Badge>
           </div>
           <p className="text-sm text-slate-500 mt-1">
-            Scan Indeed, Wellfound, Naukri, LinkedIn, and direct ATS boards with real-time filters and priority ranking.
+            Automated scanning across Indeed, Wellfound, Naukri, LinkedIn, and direct ATS boards with stealth auto-apply.
           </p>
         </div>
 
@@ -205,6 +259,21 @@ export default function JobsPage() {
               </>
             )}
           </Button>
+        </div>
+      </div>
+
+      {/* Persistent Session / Password-Free Info Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200 text-emerald-900 text-xs">
+        <div className="flex items-center gap-2.5">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+          <div>
+            <span className="font-semibold text-emerald-950">Password-Free Stealth Auto-Apply Ready:</span>{" "}
+            Run{" "}
+            <code className="bg-white/80 px-1.5 py-0.5 rounded border border-emerald-300 font-mono text-[11px] text-emerald-800">
+              python manage.py setup_browser_session
+            </code>{" "}
+            once in terminal to log in to your portal accounts safely. Playwright saves your session cookies locally!
+          </div>
         </div>
       </div>
 
@@ -394,7 +463,20 @@ export default function JobsPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleAiMatch(job)}
+                      disabled={analyzingId === job.id}
+                      className="text-[11px] font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-full border border-purple-200 flex items-center gap-1 transition-colors"
+                      title="Run Gemini AI match breakdown"
+                    >
+                      {analyzingId === job.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Bot className="w-3 h-3" />
+                      )}
+                      AI Match
+                    </button>
                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                       {job.match_score}% Match
                     </span>
@@ -513,6 +595,27 @@ export default function JobsPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {/* Auto-Apply Button */}
+                    <Button
+                      size="sm"
+                      onClick={() => handleAutoApply(job)}
+                      disabled={applyingId === job.id}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 flex items-center gap-1 shadow-xs"
+                      title="Launch stealth browser worker to auto-fill application"
+                    >
+                      {applyingId === job.id ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Applying...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-3 h-3" />
+                          Auto-Apply
+                        </>
+                      )}
+                    </Button>
+
                     <Button
                       size="sm"
                       variant="outline"
@@ -521,6 +624,7 @@ export default function JobsPage() {
                     >
                       Details
                     </Button>
+
                     <a
                       href={job.apply_url || job.original_url}
                       target="_blank"
@@ -528,9 +632,10 @@ export default function JobsPage() {
                     >
                       <Button
                         size="sm"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8 flex items-center gap-1"
+                        variant="secondary"
+                        className="text-xs h-8 flex items-center gap-1"
                       >
-                        Apply Link
+                        Portal Link
                         <ExternalLink className="w-3 h-3 ml-0.5" />
                       </Button>
                     </a>
@@ -539,6 +644,119 @@ export default function JobsPage() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {/* AI Match Modal Dialog */}
+      {aiMatchData && aiMatchJob && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <Badge className="bg-purple-100 text-purple-800 mb-1 flex items-center gap-1 w-fit">
+                  <Bot className="w-3.5 h-3.5" />
+                  AI Candidate Match Analysis ({aiMatchData.source})
+                </Badge>
+                <h3 className="text-lg font-bold text-slate-900">{aiMatchJob.title}</h3>
+                <p className="text-xs text-slate-500">{aiMatchJob.company_name}</p>
+              </div>
+              <button
+                onClick={() => setAiMatchData(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <Separator />
+
+            {/* Score & Priority Overview */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-purple-50/60 border border-purple-100">
+              <div>
+                <span className="text-xs text-purple-900 font-semibold">Overall Match Score</span>
+                <div className="text-2xl font-black text-purple-700">{aiMatchData.match_score}%</div>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-purple-900 font-semibold">Priority Recommendation</span>
+                <div>
+                  <Badge className={aiMatchData.priority_rank === "HIGH" ? "bg-rose-500 text-white" : "bg-amber-500 text-white"}>
+                    {aiMatchData.priority_rank} PRIORITY
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Summary */}
+            <div className="space-y-1.5 text-xs text-slate-700">
+              <span className="font-semibold text-slate-900">Why You Fit This Role:</span>
+              <p className="leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
+                {aiMatchData.match_summary}
+              </p>
+            </div>
+
+            {/* Matched & Missing Skills */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 space-y-1.5">
+                <span className="font-semibold text-emerald-900 flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                  Matching Skills ({aiMatchData.matched_skills.length})
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {aiMatchData.matched_skills.map((s) => (
+                    <span key={s} className="bg-white text-emerald-800 text-[10px] font-medium px-2 py-0.5 rounded border border-emerald-200">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100 space-y-1.5">
+                <span className="font-semibold text-amber-900 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                  Missing / Desired Skills
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {aiMatchData.missing_skills.length > 0 ? (
+                    aiMatchData.missing_skills.map((s) => (
+                      <span key={s} className="bg-white text-amber-800 text-[10px] font-medium px-2 py-0.5 rounded border border-amber-200">
+                        {s}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-[11px] text-amber-700 italic">No major gaps identified!</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Tailored Pitch */}
+            {aiMatchData.tailored_pitch && (
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-900">Tailored Application Pitch:</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(aiMatchData.tailored_pitch);
+                      toast.success("Pitch copied to clipboard!");
+                    }}
+                    className="text-[11px] text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium"
+                  >
+                    <Copy className="w-3 h-3" />
+                    Copy Pitch
+                  </button>
+                </div>
+                <p className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-slate-700 italic leading-relaxed">
+                  &quot;{aiMatchData.tailored_pitch}&quot;
+                </p>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2">
+              <Button size="sm" onClick={() => setAiMatchData(null)} className="text-xs bg-slate-900 text-white">
+                Done
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
