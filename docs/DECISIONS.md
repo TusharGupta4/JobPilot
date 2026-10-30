@@ -56,3 +56,12 @@
 3. **Auto-Apply Priority with Intelligent Fallback:** Automatically submit standardized forms (Indeed Easy Apply, Wellfound) using candidate profile and verified answers. If blocked by CAPTCHA or external portal, never discard the job; instead, rank it by resume match score and priority for 1-click assisted manual submission.
 4. **Company Contact Information Enrichment:** Automatically discover official company website, HR/recruitment emails, and contact phone numbers from job postings and company public web pages.
 
+## Decision 010 — Dedicated Multi-Portal View & Domain-Based Semantic Matching Engine
+**Date:** 30 Oct 2026  
+**Context:** Candidate needs to clearly identify and filter jobs by source platform (Indeed, Wellfound, Cutshort, Direct ATS) and view domain-specific opportunities without relying on rigid keyword matching, accounting for diverse naming conventions across portals.  
+**Decision:**
+1. **Dedicated Multi-Portal Dashboard Section:** Added dedicated portal tabs on the main dashboard (`All`, `Indeed`, `Wellfound`, `Cutshort`, `Direct ATS`) allowing 1-click platform isolation with real-time job counts and distinctive portal branding.
+2. **Contextual Semantic Domain Matching:** Implemented ontology-based semantic matching (`semantic_domain_matcher.py`) classifying roles into `aiml` (AI/ML, NLP, GenAI, Python AI tools), `fullstack`, `backend`, `frontend`, `data`, `healthcare`, and `devops`. Uses boundary-aware contextual relevance rather than exact keywords, properly handling dual overlaps (e.g. `Full Stack Developer (AI Tools)` matching both AI/ML and Full Stack).
+3. **Dual-Layer Filtering:** Both backend API (`?portal=...&domain=...`) and instant client-side memoized filters work cohesively with match score priority tiers.
+
+
