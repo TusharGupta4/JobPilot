@@ -166,3 +166,73 @@ class ResumeViewSet(viewsets.ModelViewSet):
         resume.save(update_fields=["is_primary"])
         serializer = self.get_serializer(resume)
         return Response(serializer.data)
+
+
+class AnswerQuestionView(APIView):
+    """
+    API endpoint for answering custom job screening questions and founder notes
+    grounded in candidate's verified CV, experience, and Gemini LLM.
+    POST /api/profile/answer-question/
+    Payload: { "question": "...", "company": "...", "title": "...", "job_description": "..." }
+    """
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        question = request.data.get("question", "").strip()
+        company = request.data.get("company", "").strip()
+        job_title = request.data.get("title", "").strip()
+        job_description = request.data.get("job_description", "").strip()
+
+        if not question:
+            return Response({"error": "question parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        from .services.question_answerer import answer_screening_question
+        result = answer_screening_question(
+            question_text=question,
+            company=company,
+            job_title=job_title,
+            job_description=job_description
+        )
+        return Response(result, status=status.HTTP_200_OK)
+
+
+class ResolveFormFieldView(APIView):
+    """
+    API endpoint for dynamically resolving unexpected application questions
+    (Yes/No questions, multi-choice radio buttons, select dropdowns, text fields)
+    using Gemini LLM reasoning.
+    POST /api/profile/resolve-form-field/
+    Payload: { "question_text": "...", "field_type": "radio", "options": [...], "company": "...", "title": "..." }
+    """
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        question_text = (
+            request.data.get("question_text") or
+            request.data.get("label") or
+            request.data.get("question") or
+            request.data.get("field_name") or
+            ""
+        ).strip()
+        field_type = request.data.get("field_type", "radio").strip()
+        options = request.data.get("options", [])
+        company = request.data.get("company", "").strip()
+        job_title = request.data.get("title", "").strip()
+        job_description = request.data.get("job_description", "").strip()
+
+        if not question_text:
+            return Response({"error": "question_text, label, or question is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        from .services.question_answerer import resolve_dynamic_form_field
+        result = resolve_dynamic_form_field(
+            question_text=question_text,
+            field_type=field_type,
+            options=options,
+            job_title=job_title,
+            company=company,
+            job_description=job_description
+        )
+        return Response(result, status=status.HTTP_200_OK)
+
+
+

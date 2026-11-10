@@ -191,7 +191,10 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = [
     os.environ.get("FRONTEND_URL", "http://localhost:3000"),
+    "http://127.0.0.1:3000",
 ]
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 
 # =============================================================================

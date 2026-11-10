@@ -712,11 +712,28 @@ export default function ProfilePage() {
                     Verified Answers Store
                   </CardTitle>
                   <CardDescription>
-                    Pre-saved truthful answers for common job portal application fields.
+                    Pre-saved truthful answers for common job portal application fields (Cutshort, Indeed, Wellfound, ATS).
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="notice_period">Notice Period</Label>
+                      <Input
+                        id="notice_period"
+                        value={profile.verified_answers?.notice_period || ""}
+                        onChange={(e) =>
+                          setProfile({
+                            ...profile,
+                            verified_answers: {
+                              ...profile.verified_answers,
+                              notice_period: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="e.g. Immediate / 15 days / 30 days"
+                      />
+                    </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="work_authorization">Work Authorization</Label>
                       <Input
@@ -734,23 +751,98 @@ export default function ProfilePage() {
                         placeholder="e.g. Authorized to work in India"
                       />
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <Label htmlFor="notice_period">Notice Period</Label>
+                      <Label htmlFor="expected_ctc">Expected CTC / Salary</Label>
                       <Input
-                        id="notice_period"
-                        value={profile.verified_answers?.notice_period || ""}
+                        id="expected_ctc"
+                        value={profile.verified_answers?.expected_ctc || ""}
                         onChange={(e) =>
                           setProfile({
                             ...profile,
                             verified_answers: {
                               ...profile.verified_answers,
-                              notice_period: e.target.value,
+                              expected_ctc: e.target.value,
                             },
                           })
                         }
-                        placeholder="e.g. Immediate / 30 days"
+                        placeholder="e.g. 6 LPA (Negotiable) or 600000"
                       />
                     </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="current_ctc">Current CTC / Salary</Label>
+                      <Input
+                        id="current_ctc"
+                        value={profile.verified_answers?.current_ctc || ""}
+                        onChange={(e) =>
+                          setProfile({
+                            ...profile,
+                            verified_answers: {
+                              ...profile.verified_answers,
+                              current_ctc: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="e.g. Fresher / Not Applicable or 4 LPA"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="years_of_experience">Total Experience</Label>
+                      <Input
+                        id="years_of_experience"
+                        value={profile.verified_answers?.years_of_experience || ""}
+                        onChange={(e) =>
+                          setProfile({
+                            ...profile,
+                            verified_answers: {
+                              ...profile.verified_answers,
+                              years_of_experience: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="e.g. 1 year / 1-2 years / Fresher"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="availability">Availability / Join Date</Label>
+                      <Input
+                        id="availability"
+                        value={profile.verified_answers?.availability || ""}
+                        onChange={(e) =>
+                          setProfile({
+                            ...profile,
+                            verified_answers: {
+                              ...profile.verified_answers,
+                              availability: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="e.g. Immediate / Within 15 days"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="open_to_relocation">Open to Relocation</Label>
+                    <Input
+                      id="open_to_relocation"
+                      value={profile.verified_answers?.open_to_relocation !== undefined ? String(profile.verified_answers.open_to_relocation) : "Yes"}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          verified_answers: {
+                            ...profile.verified_answers,
+                            open_to_relocation: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g. Yes / Open to Bangalore, Hyderabad, Pune, Remote"
+                    />
                   </div>
 
                   <div className="space-y-1.5">

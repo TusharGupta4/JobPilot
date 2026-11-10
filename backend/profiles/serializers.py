@@ -4,6 +4,7 @@ from .models import CandidateProfile, Resume
 
 class ResumeSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
+    file_path = serializers.SerializerMethodField()
 
     class Meta:
         model = Resume
@@ -12,6 +13,7 @@ class ResumeSerializer(serializers.ModelSerializer):
             "profile",
             "file",
             "file_url",
+            "file_path",
             "filename",
             "file_size",
             "file_type",
@@ -28,7 +30,16 @@ class ResumeSerializer(serializers.ModelSerializer):
             "extracted_text",
             "uploaded_at",
             "file_url",
+            "file_path",
         ]
+
+    def get_file_path(self, obj):
+        if obj.file:
+            try:
+                return obj.file.path
+            except Exception:
+                return ""
+        return ""
 
     def get_file_url(self, obj):
         if obj.file:
@@ -49,6 +60,8 @@ class ResumeSerializer(serializers.ModelSerializer):
 
 class CandidateProfileSerializer(serializers.ModelSerializer):
     resumes = ResumeSerializer(many=True, read_only=True)
+    github_url = serializers.SerializerMethodField()
+    linkedin_url = serializers.SerializerMethodField()
 
     class Meta:
         model = CandidateProfile
@@ -60,6 +73,8 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             "location",
             "title",
             "bio",
+            "github_url",
+            "linkedin_url",
             "skills",
             "experience",
             "education",
@@ -71,3 +86,13 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at", "resumes"]
+
+    def get_github_url(self, obj):
+        if obj.verified_answers and obj.verified_answers.get("github_url"):
+            return obj.verified_answers.get("github_url")
+        return "https://github.com/TusharGupta4"
+
+    def get_linkedin_url(self, obj):
+        if obj.verified_answers and obj.verified_answers.get("linkedin_url"):
+            return obj.verified_answers.get("linkedin_url")
+        return "https://linkedin.com/in/tushargupta04"

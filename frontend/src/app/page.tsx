@@ -91,38 +91,57 @@ export default function Home() {
     }
   }
 
-  // Multi-Portal Tabs Configuration
-  const portalTabs = [
-    { key: "all", label: "All Portals", count: jobs.length, color: "bg-slate-900 text-white" },
+  // Base domain & search filtered opportunities for consistent tab counts
+  const domainFilteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      if (selectedDomain !== "all") {
+        const domains = job.semantic_domains || [];
+        if (!domains.includes(selectedDomain)) return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesTitle = job.title.toLowerCase().includes(q);
+        const matchesComp = job.company_name.toLowerCase().includes(q);
+        const matchesDesc = job.description.toLowerCase().includes(q);
+        const matchesLoc = job.locations.some((l) => l.toLowerCase().includes(q));
+        if (!matchesTitle && !matchesComp && !matchesDesc && !matchesLoc) return false;
+      }
+      return true;
+    });
+  }, [jobs, selectedDomain, searchQuery]);
+
+  // Multi-Portal Tabs Configuration (Reconciled with active domain/search scope)
+  const portalTabs = useMemo(() => [
+    { key: "all", label: "All Portals", count: domainFilteredJobs.length, color: "bg-slate-900 text-white" },
     {
       key: "indeed",
       label: "Indeed India",
-      count: jobs.filter((j) => j.portal_source === "indeed").length,
+      count: domainFilteredJobs.filter((j) => j.portal_source === "indeed").length,
       badgeClass: "bg-blue-600 text-white hover:bg-blue-700",
       icon: "Indeed",
     },
     {
       key: "wellfound",
       label: "Wellfound",
-      count: jobs.filter((j) => j.portal_source === "wellfound").length,
+      count: domainFilteredJobs.filter((j) => j.portal_source === "wellfound").length,
       badgeClass: "bg-neutral-800 text-white hover:bg-neutral-900",
       icon: "Wellfound",
     },
     {
       key: "cutshort",
       label: "Cutshort",
-      count: jobs.filter((j) => j.portal_source === "cutshort").length,
+      count: domainFilteredJobs.filter((j) => j.portal_source === "cutshort").length,
       badgeClass: "bg-purple-600 text-white hover:bg-purple-700",
       icon: "Cutshort",
     },
     {
       key: "ats_direct",
       label: "Direct ATS",
-      count: jobs.filter((j) => j.portal_source === "ats_direct").length,
+      count: domainFilteredJobs.filter((j) => j.portal_source === "ats_direct").length,
       badgeClass: "bg-emerald-600 text-white hover:bg-emerald-700",
       icon: "ATS",
     },
-  ];
+  ], [domainFilteredJobs]);
 
   // Semantic Domain Taxonomy
   const domainPills = [

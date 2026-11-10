@@ -55,6 +55,15 @@ media/
 uploads/
 
 # ============================================
+# Browser automation session data & scratch scripts
+# ============================================
+browser_session/
+**/browser_session/
+scratch/
+**/scratch/
+
+
+# ============================================
 # Coverage & test reports
 # ============================================
 htmlcov/

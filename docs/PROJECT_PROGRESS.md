@@ -71,13 +71,55 @@
 | Backend: Fallback & Handoff Engine | ✅ COMPLETED | CAPTCHA detection and safe fallback to 1-click manual apply |
 | Frontend: Application Tracker | ✅ COMPLETED | "⚡ Auto-Apply" action on cards with live toast feedback |
 
+## Phase 5: JobPilot Chrome Extension (Cloudflare-Immune 1-Click Copilot)
+
+| Task | Status | Notes |
+|---|---|---|
+| Extension: Manifest V3 Structure | ✅ COMPLETED | Created in `extension/` with permissions, icons, and background worker |
+| Extension: Background Service Worker | ✅ COMPLETED | Dual-way sync with Django REST API (`/api/profile/me/`) and PostgreSQL |
+| Extension: Semantic Form Matcher Engine | ✅ COMPLETED | Autocompletes Name, Email, Phone, CV, Location, and screening answers |
+| Extension: In-Page Floating Copilot Dock | ✅ COMPLETED | Discreet pill/dock on job portals with 1-click fill and auto-record |
+| Extension: Modern Dark Mode Popup UI | ✅ COMPLETED | Real-time profile review, backend connection badge, and active tab triggers |
+| Extension: Multi-Layer Click Engine | ✅ COMPLETED | CDP hardware click (`isTrusted: true`) + Main-world React fiber dispatch |
+| Extension: Cutshort Resume Automator | ✅ COMPLETED | HTML5 `DataTransfer` + dropzone DragEvent synthesis attaching candidate CV |
+| Engine: Portal Classification Logic | ✅ COMPLETED | Strict distinction between External ("Apply on Company Site") vs Direct ("Apply Now") |
+| Backend: `/api/jobs/record-application/` | ✅ COMPLETED | Real-time PostgreSQL status and `is_easy_apply` sync when viewed/submitted |
+| Documentation & Setup Guide | ✅ COMPLETED | Documented in `docs/JOBPILOT_CHROME_EXTENSION_GUIDE.md` |
+
 ---
 
+- **Company Directory & Outreach System (`/companies`)**: Centralized deduplicated company table with direct contact emails (`mailto:`), phone numbers (`tel:`), direct WhatsApp links, active job drawer, instant "Contacted" toggle checkbox, CSV export, and default "Ready for Outreach" filtering.
+- **Bulk Sequential Auto-Pilot Queue & Emergency Stop**: Multi-select job cards + "Select All Auto-Apply" smart button with sequential 1-by-1 background tab execution, 3s polite delay, 50s watchdog timer, real-time floating progress widget, and instant **Emergency Stop** (`⏹️ Stop Auto-Pilot`) in dock and floating bar, plus auto-halt when closing the active application tab.
+- **Accurate Portal Classification & Cutshort Experience Fix**: All 19 Cutshort jobs audited live and reclassified in PostgreSQL to `Mid` (11) and `Senior` (8) with exact experience ranges (`4 - 14 yrs`, `8 - 11 yrs`, etc.), completely removing experienced roles from Fresher / Entry-level dashboard views.
+- **Pre-Apply Eligibility & Career Directives Guard**: Before clicking primary apply CTAs, JobPilot checks page text for experience mismatch (`\b([2-9]|\d{2,})\s*-\s*(\d+)\s*yrs`) and external career directives (`apply directly through our careers page`). Ineligible jobs are automatically skipped with `MANUAL_APPLY_NEEDED` without clicking Apply.
+- **Chrome Reading Mode & Modal Freeze Fix**: Eliminated the 8.5s aggressive scroll loop that triggered Chrome's omnibox `Reading mode` button (now uses a gentle 600-950ms dwell time). Fixed undefined `bodyText` in `checkApplicationBlockReason` which previously caused silent exceptions inside modals, and enhanced Cutshort's `Current company` input autofill with automated autocomplete selection.
+- **Bulk Sequential Auto-Pilot Queue & Emergency Stop**: Multi-select job cards + "Select All Auto-Apply" smart button with sequential 1-by-1 background tab execution, 3s polite delay, 50s watchdog timer, real-time floating progress widget, and instant **Emergency Stop** (`⏹️ Stop Auto-Pilot`) in dock and floating bar, plus auto-halt when closing the active application tab.
+- **Smart Question Auto-Fill with Gemini 2.5 Flash**: Background extension proxies application textareas and screening questions ("Why should we hire you?", "Describe your experience", technical notes) to `/api/profile/answer-question/`, generating authentic first-person answers grounded in candidate CV, projects, and target JD.
+- **Configurable Application Store (`/profile`)**: Dynamic fields for Notice Period, Expected CTC, Current CTC, Total Experience, Availability/Join Date, and Relocation. Extension autofills strictly according to these configured values.
+- **Company Contacts Auto-Sync**: Contact details discovered during job scans immediately backfill and sync to `Company` database records, removing the need for manual crawling and keeping `/companies` clean and outreach-ready.
+
 ## Known Issues
-_None yet_
+_None — all core systems verified, TypeScript compiled with 0 errors._
 
-## Pending Decisions
-_None — all decisions aligned with user requirements (see Decision 009)_
+## Completed Features
+- [x] Indeed / Wellfound / Cutshort 1-Click Auto-Apply (CDP Hardware Clicks + React Synthetic Events)
+- [x] Pre-Apply Experience & Careers Directive Guard (Skips 4-14 yr / external career site jobs)
+- [x] Live Experience Reclassification for 19 Cutshort jobs (PostgreSQL database updated)
+- [x] Chrome Reading Mode & Modal Crash Resolution (`bodyText` scope fix)
+- [x] Emergency Stop (`⏹️ Stop Auto-Pilot`) & Tab Close Auto-Halt
+- [x] Cutshort "Save and continue" modal deadlock fix & exit survey auto-dismiss
+- [x] Smart Question Auto-Fill in Extension (Gemini 2.5 Flash + CV Grounding)
+- [x] Configurable Verified Answers Store on `/profile` (Notice Period, CTC, Exp, Relocation)
+- [x] Company Contacts Auto-Sync directly to `Company` records
+- [x] Wellfound Location Preferences Resolver (Auto-selects "I can relocate to...", location dropdown & founder note)
+- [x] Dedicated Company Outreach Directory (`/companies`) with WhatsApp & Email HR 1-click actions
+- [x] Single & Bulk Deduplicated Company Export to CSV (`/api/companies/export/`)
+- [x] Sequential Bulk Auto-Apply queue in Extension with live UI progress bar
 
-## Next Task
-**→ System Ready: Run `python manage.py setup_browser_session` once for persistent session, then start discovering & auto-applying!**
+## Next Steps for User
+1. **Reload Chrome Extension**: Open `chrome://extensions`, toggle Developer Mode, and click the refresh icon on **JobPilot Copilot**.
+2. **Refresh Dashboard**: Open [http://localhost:3000/jobs](http://localhost:3000/jobs) with **Fresher** filter — you will notice senior/mid jobs like Provenir (4-14 yrs) are no longer listed!
+3. **Review Preferences on `/profile`**: Open [http://localhost:3000/profile](http://localhost:3000/profile) -> **Verified Answers Store** to review/adjust your Notice Period, Expected CTC, and Current CTC.
+4. **Explore `/companies` Directory**: See all companies with verified contacts under "Ready for Outreach" with direct 1-click Cold Email & WhatsApp buttons.
+
+
